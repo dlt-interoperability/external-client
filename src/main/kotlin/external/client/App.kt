@@ -3,13 +3,35 @@
  */
 package external.client
 
-class App {
-    val greeting: String
-        get() {
-            return "Hello world."
-        }
-}
+import io.grpc.ManagedChannelBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
+import proof.ProofOuterClass.Commitment
+import proof.ProofOuterClass.Request
 
 fun main(args: Array<String>) {
-    println(App().greeting)
+    val grpcClient = createGrpcConnection()
+    val commitment = Commitment.newBuilder()
+            .setAccumulator("dummy accumulator")
+            .setBlockHeight(1)
+            .build()
+    val request = Request.newBuilder()
+            .setKey("dummyKey")
+            .setCommitment(commitment)
+            .build()
+    runBlocking {
+        async { grpcClient.RequestState(request) }.await()
+    }
+
 }
+
+// TODO: this should have some error handling and return an Either Error
+fun createGrpcConnection() =
+    GrpcClient(
+            // TODO: move host and port to a config file
+            ManagedChannelBuilder.forAddress("localhost", 9099)
+                    .usePlaintext()
+                    .executor(Dispatchers.Default.asExecutor())
+                    .build())
