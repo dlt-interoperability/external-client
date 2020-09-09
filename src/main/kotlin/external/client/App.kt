@@ -3,37 +3,31 @@ package external.client
 import arrow.core.Either
 import arrow.core.Left
 import arrow.core.Right
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.findOrSetObject
+import com.github.ajalt.clikt.core.subcommands
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.async
-import proof.ProofOuterClass.Commitment
-import proof.ProofOuterClass.Request
 import java.io.FileInputStream
 import java.lang.Error
 import java.util.*
 
-fun main(args: Array<String>) {
-    val properties = Properties()
-    FileInputStream("${System.getProperty("user.dir")}/src/main/resources/config.properties")
-            .use { properties.load(it) }
-    val host = properties["GRPC_HOST"] as String
-    val port = (properties["GRPC_PORT"] as String).toInt()
-    createGrpcConnection(host, port).map { grpcClient ->
-        val commitment = Commitment.newBuilder()
-                .setAccumulator("dummy accumulator")
-                .setBlockHeight(1)
-                .build()
-        val request = Request.newBuilder()
-                .setKey("dummyKey")
-                .setCommitment(commitment)
-                .build()
-        runBlocking {
-            async { grpcClient.RequestState(request) }.await()
-        }
+class App: CliktCommand() {
+    val config by findOrSetObject { mutableMapOf<String, String>() }
+    override fun run() {
+        val properties = Properties()
+        FileInputStream("${System.getProperty("user.dir")}/src/main/resources/config.properties")
+                .use { properties.load(it) }
+        config["GRPC_HOST"] = properties["GRPC_HOST"] as String
+        config["GRPC_PORT"] = properties["GRPC_PORT"] as String
     }
 }
+
+fun main(args: Array<String>) = App()
+        .subcommands(
+                GetProofCommand())
+        .main(args)
 
 fun createGrpcConnection(host: String, port: Int): Either<Error, GrpcClient> = try {
     Right(GrpcClient(
@@ -45,4 +39,3 @@ fun createGrpcConnection(host: String, port: Int): Either<Error, GrpcClient> = t
     println("GrpcError: Error creating gRPC connection: ${e.stackTrace}\n")
     Left(Error("Error: ${e.message}"))
 }
-

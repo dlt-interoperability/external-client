@@ -13,6 +13,17 @@ and proof of state in the accumulator.
 
 ## Prerequisites
 
+Ensure that the Fabric network is running. The recommended network is the
+[test-network](https://github.com/hyperledger/fabric-samples/tree/master/test-network)
+in the fabric-samples repository. It is also recommended to use images for
+Fabric v2.2. After cloning or pulling the latest version of the fabric-samples
+repository, run the following from the test-network directory:
+
+```
+./network.sh up createChannel -c mychannel -ca
+./network.sh deployCC -ccn basic -ccl javascript
+```
+
 Ensure that the Fabric commitment agent is running. To get the agent up and
 running, clone [the
 repo](https://github.com/dlt-interoperability/commitment-agent) and run:
@@ -21,10 +32,18 @@ repo](https://github.com/dlt-interoperability/commitment-agent) and run:
 ./gradlew run
 ```
 
-## Running
+## Building and Running
+
+The external client is a command line application. Build the binary with:
 
 ```
-./gradlew run
+./gradlew installDist
+```
+
+The only available command is `get-proof <key>`. This can be used as follows:
+
+```
+./build/install/external-client/bin/external-client get-proof abc
 ```
 
 ## Coding principles
@@ -40,7 +59,7 @@ Conventions
   `Either`
   type](https://arrow-kt.io/docs/apidocs/arrow-core-data/arrow.core/-either/).
 - Implement functions as expressions. Flows that produce errors can be composed
-  using `map` and `flatMap`. Avoid statements with side effects.
+  using `map` and `flatMap`. Avoid statements with side effects in functions.
 - Use recursion over loops (when tail recursion is possible to avoid stack overflow).
 
 An example of how to catch exceptions and convert to and Either type is shown in
