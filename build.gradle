@@ -25,6 +25,10 @@ configurations.all { configuration ->
 repositories {
     jcenter()
     mavenCentral()
+    // Local Maven repository
+    maven {
+        url 'file://Users/allirvin/.m2/repository'
+    }
 }
 
 dependencies {
@@ -47,6 +51,9 @@ dependencies {
 
     // Kotlin command line client library - Clikt
     implementation "com.github.ajalt.clikt:clikt:3.0.1"
+
+    // RSA accumulator library
+    implementation "org.starcoin.rsa:rsa-accumulator:0.1"
 }
 
 application {

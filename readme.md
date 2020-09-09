@@ -13,6 +13,13 @@ and proof of state in the accumulator.
 
 ## Prerequisites
 
+The external client uses the
+[rsa-accumulator-kotlin](https://github.com/dlt-interoperability/rsa-accumulator-kotlin)
+library to verify membership proofs provided by the Fabric agent. This
+repository needs to be cloned, built, and published to a local Maven repository.
+Follow instructions in the repo to do this.
+**Change line 30 in the `build.gradle` to point to your local Maven repository directory.**
+
 Ensure that the Fabric network is running. The recommended network is the
 [test-network](https://github.com/hyperledger/fabric-samples/tree/master/test-network)
 in the fabric-samples repository. It is also recommended to use images for
@@ -59,15 +66,19 @@ Conventions
   `Either`
   type](https://arrow-kt.io/docs/apidocs/arrow-core-data/arrow.core/-either/).
 - Implement functions as expressions. Flows that produce errors can be composed
-  using `map` and `flatMap`. Avoid statements with side effects in functions.
+  using `map`, `flatMap` and `fold`. Avoid statements with side effects in functions.
 - Use recursion over loops (when tail recursion is possible to avoid stack overflow).
 
 An example of how to catch exceptions and convert to and Either type is shown in
 [this gist](https://gist.github.com/airvin/79f1fb2a3821a9e5d227db3ee9561f42).
 
+An example of folding over an Either Error to reduce to a single type is
+demonstrated in [this
+gist](https://gist.github.com/airvin/eabc99a9552a0573afd2dd9a13e75948).
+
 ## TODO
 
-- User CLI to make queries
 - Import Web3J to query the Ethereum smart contract
-- Make a config file
-- Import the RSA accumulator library and use it for proof verification
+- Config file for the build.gradle
+- Use Gson (or Moshi) to make KV out of the JSON stringified state that's
+  returned in the proof.
