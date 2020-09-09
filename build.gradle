@@ -25,6 +25,9 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
 
+    // Arrow is a functional library for Kotlin
+    implementation "io.arrow-kt:arrow-core:0.10.4"
+
     // gRPC and protobuf dependencies
     implementation "io.grpc:grpc-kotlin-stub:$grpc_kotlin_version"
     implementation "com.google.protobuf:protobuf-java:$protobuf_version"
