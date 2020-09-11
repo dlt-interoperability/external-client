@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.Left
 import arrow.core.Right
 import org.starcoin.rsa.RSAAccumulator
+import org.starcoin.rsa.stringToHashBigInteger
 import proof.ProofOuterClass
 import java.math.BigInteger
 
@@ -13,12 +14,12 @@ fun verifyProofResponse(
 ): Either<Error, Boolean> {
     println("Verifying proof returned from Fabric agent.")
     return if (proofResponse.hasProof()) {
-        // Parse a KV Write from the state string returned from the Fabric agent in proof.state
-        // Create the BigInteger key from the state returned from the Fabric agent
+        // Create the hash key from the state returned from the Fabric agent
+        val key = stringToHashBigInteger(proofResponse.proof.state)
         val isValid = RSAAccumulator.verifyMembership(
-                // This should be the accumulator retrieved from Ethereum
+                // TODO: This should be the accumulator retrieved from Ethereum
                 a = BigInteger(proofResponse.proof.a),
-                x = BigInteger(proofResponse.proof.state),
+                x = key,
                 nonce = BigInteger(proofResponse.proof.nonce),
                 proof = BigInteger(proofResponse.proof.proof),
                 n = BigInteger(proofResponse.proof.n)
