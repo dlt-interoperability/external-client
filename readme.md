@@ -20,23 +20,31 @@ repository needs to be cloned, built, and published to a local Maven repository.
 Follow instructions in the repo to do this.
 **Change line 30 in the `build.gradle` to point to your local Maven repository directory.**
 
-Ensure that the Fabric network is running. The recommended network is the
-[test-network](https://github.com/hyperledger/fabric-samples/tree/master/test-network)
-in the fabric-samples repository. It is also recommended to use images for
-Fabric v2.2. After cloning or pulling the latest version of the fabric-samples
-repository, run the following from the test-network directory:
+Ensure the [Fabric
+network](https://github.com/dlt-interoperability/fabric-network) and [Fabric
+commitment agent](https://github.com/dlt-interoperability/commitment-agent) are
+running. Because the Fabric agent only subscribes to new block events, it is
+important that the Fabric agent is started before the Fabric network first
+deploys and installs its chaincde. Therefore, the order in which these
+components are started matters.
+
+1. Start the Fabric network (in fabric-network)
 
 ```
-./network.sh up createChannel -c mychannel -ca
-./network.sh deployCC -ccn basic -ccl javascript
+make start
 ```
 
-Ensure that the Fabric commitment agent is running. To get the agent up and
-running, clone [the
-repo](https://github.com/dlt-interoperability/commitment-agent) and run:
+2. Start the Fabric agent (in commitment-agent)
 
 ```
 ./gradlew run
+```
+
+3. Deploy and invoke the chaincode (in fabric-network)
+
+```
+make deploy-cc
+make invoke-cc
 ```
 
 ## Building and Running
@@ -47,11 +55,16 @@ The external client is a command line application. Build the binary with:
 ./gradlew installDist
 ```
 
-The only available command is `get-proof <key>`. This can be used as follows:
+The only available command is `get-proof <key> <block-height>`. This can be used as follows:
 
 ```
-./build/install/external-client/bin/external-client get-proof abc
+./build/install/external-client/bin/external-client get-proof key1 7
 ```
+
+The requirement for the block height is a temporary workaround while the
+external client is creating a dummy Ethereum commitment. When the external
+client makes the actual request to Ethereum it will use the block height
+corresponding to the accumulator in the latest commitment.
 
 ## Coding principles
 
@@ -80,5 +93,3 @@ gist](https://gist.github.com/airvin/eabc99a9552a0573afd2dd9a13e75948).
 
 - Import Web3J to query the Ethereum smart contract
 - Config file for the build.gradle
-- Use Gson (or Moshi) to make KV out of the JSON stringified state that's
-  returned in the proof.
