@@ -13,6 +13,8 @@ and proof of state in the accumulator.
 
 ## Prerequisites
 
+### Publish the RSA Accumulator library to MavenLocal
+
 The external client uses the
 [rsa-accumulator-kotlin](https://github.com/dlt-interoperability/rsa-accumulator-kotlin)
 library to verify membership proofs provided by the Fabric agent. This
@@ -20,31 +22,33 @@ repository needs to be cloned, built, and published to a local Maven repository.
 Follow instructions in the repo to do this.
 **Change line 30 in the `build.gradle` to point to your local Maven repository directory.**
 
-Ensure the [Fabric
-network](https://github.com/dlt-interoperability/fabric-network) and [Fabric
-commitment agent](https://github.com/dlt-interoperability/commitment-agent) are
-running. Because the Fabric agent only subscribes to new block events, it is
-important that the Fabric agent is started before the Fabric network first
-deploys and installs its chaincde. Therefore, the order in which these
-components are started matters.
+### Start the Fabric network
 
-1. Start the Fabric network (in fabric-network)
+The recommended network to use is [Fabric
+network](https://github.com/dlt-interoperability/fabric-network). Start the
+network and deploy and invoke the chaincode with:
 
 ```
 make start
+make deploy-cc
+make invoke-cc
 ```
 
-2. Start the Fabric agent (in commitment-agent)
+The `invoke-cc` make target starts a Fabric node.js application that submits
+`CreateAsset` transactions every 10 seconds. This can be cancelled with
+`ctrl-c`. The `make invoke-cc` can be used repeatedly without needing to
+restart the network.
+
+### Start the Fabric Agent
+
+The [Fabric
+commitment agent](https://github.com/dlt-interoperability/commitment-agent) is
+used to maintain an accumulator for the ledger state. It returns state and proof
+of membership to the state on request. Clone the repo, update the `build.gradle`
+to point to the local Maven repo, and start the agent with:
 
 ```
 ./gradlew run
-```
-
-3. Deploy and invoke the chaincode (in fabric-network)
-
-```
-make deploy-cc
-make invoke-cc
 ```
 
 ## Building and Running
