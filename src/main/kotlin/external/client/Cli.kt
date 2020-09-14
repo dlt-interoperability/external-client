@@ -23,7 +23,7 @@ class GetProofCommand: CliktCommand(help = "Makes a request to the Fabric agent 
         getLatestAccumulator(blockHeight).map { commitment ->
             // Construct the request with the accumulator from Ethereum
             // and the user-provided key
-            val request = ProofOuterClass.Request.newBuilder()
+            val request = ProofOuterClass.StateProofRequest.newBuilder()
                     .setCommitment(commitment)
                     .setKey(key)
                     .build()
@@ -33,7 +33,7 @@ class GetProofCommand: CliktCommand(help = "Makes a request to the Fabric agent 
             val port = config["GRPC_PORT"]?.toInt() ?: 9099
             createGrpcConnection(host, port).map { grpcClient ->
                 runBlocking {
-                    async { grpcClient.RequestState(request) }.await()
+                    async { grpcClient.requestStateProof(request) }.await()
                 }
             }.flatMap { proofResponse ->
                 verifyProofResponse(proofResponse, BigInteger(commitment.accumulator))

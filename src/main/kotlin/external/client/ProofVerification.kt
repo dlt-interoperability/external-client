@@ -9,7 +9,7 @@ import proof.ProofOuterClass
 import java.math.BigInteger
 
 fun verifyProofResponse(
-        proofResponse: ProofOuterClass.ProofResponse,
+        proofResponse: ProofOuterClass.StateProofResponse,
         accumulator: BigInteger
 ): Either<Error, Boolean> {
     println("Verifying proof returned from Fabric agent.")
