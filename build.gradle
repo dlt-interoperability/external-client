@@ -50,7 +50,7 @@ dependencies {
     implementation "io.grpc:grpc-stub:$grpc_version"
 
     // Kotlin command line client library - Clikt
-    implementation "com.github.ajalt.clikt:clikt:3.0.1"
+    implementation "com.github.ajalt:clikt:2.7.1"
 
     // RSA accumulator library
     implementation "org.starcoin.rsa:rsa-accumulator:0.1"
