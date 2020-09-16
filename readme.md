@@ -22,6 +22,17 @@ repository needs to be cloned, built, and published to a local Maven repository.
 Follow instructions in the repo to do this.
 **Change line 30 in the `build.gradle` to point to your local Maven repository directory.**
 
+### Get the Solidity contracts
+
+This project copies the solidity smart contracts defined in the [bulletin board
+repo](https://github.com/dlt-interoperability/bulletin-board) and generates Java
+wrapper files from them. Ensure the bulletin board project is present at the
+same level as the directory structure as the commitment-agent project and run:
+
+```
+./scripts/get-solidity-contracts.sh
+```
+
 ### Start the Fabric network
 
 The recommended network to use is [Fabric
@@ -48,8 +59,12 @@ of membership to the state on request. Clone the repo, update the `build.gradle`
 to point to the local Maven repo, and start the agent with:
 
 ```
-./gradlew run
+make fabric-client
+make ethereum-client
 ```
+
+When the Ethereum client starts, make note of the address for the ledger state
+contract. This is needed by the external client to fetch the latest commitment.
 
 ## Building and Running
 
@@ -59,16 +74,13 @@ The external client is a command line application. Build the binary with:
 ./gradlew installDist
 ```
 
-The only available command is `get-proof <key> <block-height>`. This can be used as follows:
+The only available command is `get-proof <key> <ledger-contract-address>`. Use
+the ledger contract address noted down from when starting the agent in the
+previous section.
 
 ```
-./build/install/external-client/bin/external-client get-proof key1 7
+./build/install/external-client/bin/external-client get-proof key1 <ledger contract address>
 ```
-
-The requirement for the block height is a temporary workaround while the
-external client is creating a dummy Ethereum commitment. When the external
-client makes the actual request to Ethereum it will use the block height
-corresponding to the accumulator in the latest commitment.
 
 ## Coding principles
 
@@ -86,14 +98,12 @@ Conventions
   using `map`, `flatMap` and `fold`. Avoid statements with side effects in functions.
 - Use recursion over loops (when tail recursion is possible to avoid stack overflow).
 
-An example of how to catch exceptions and convert to and Either type is shown in
-[this gist](https://gist.github.com/airvin/79f1fb2a3821a9e5d227db3ee9561f42).
+Example Gists:
 
-An example of folding over an Either Error to reduce to a single type is
-demonstrated in [this
-gist](https://gist.github.com/airvin/eabc99a9552a0573afd2dd9a13e75948).
+- [How to catch exceptions and convert to and Either type](https://gist.github.com/airvin/79f1fb2a3821a9e5d227db3ee9561f42).
+- [Using flatMap to compose functions that return Eithers](https://gist.github.com/airvin/3bfae1f3e622e466ba9072b53684555a).
+- [Folding over an Either Error to reduce to a single type](https://gist.github.com/airvin/eabc99a9552a0573afd2dd9a13e75948).
 
 ## TODO
 
-- Import Web3J to query the Ethereum smart contract
 - Config file for the build.gradle

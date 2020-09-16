@@ -28,7 +28,6 @@ class EthereumClient() {
     }
 
     fun getLatestAccumulator(
-            blockHeight: Int,
             ledgerContractAddress: String
     ): Either<Error, CommitmentOuterClass.Commitment> = try {
         val lsInstance = LedgerState.load(
