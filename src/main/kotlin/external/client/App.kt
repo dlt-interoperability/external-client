@@ -14,19 +14,19 @@ import java.lang.Error
 import java.util.*
 
 class App: CliktCommand() {
-    val config by findOrSetObject { mutableMapOf<String, String>() }
+    val config by findOrSetObject { mutableMapOf<String, Any>() }
     override fun run() {
         val properties = Properties()
         FileInputStream("${System.getProperty("user.dir")}/src/main/resources/config.properties")
                 .use { properties.load(it) }
         config["GRPC_HOST"] = properties["GRPC_HOST"] as String
         config["GRPC_PORT"] = properties["GRPC_PORT"] as String
+        config["ETHEREUM_CLIENT"] = EthereumClient()
     }
 }
 
 fun main(args: Array<String>) = App()
-        .subcommands(
-                GetProofCommand())
+        .subcommands(GetProofCommand())
         .main(args)
 
 fun createGrpcConnection(host: String, port: Int): Either<Error, GrpcClient> = try {
@@ -36,6 +36,6 @@ fun createGrpcConnection(host: String, port: Int): Either<Error, GrpcClient> = t
                     .executor(Dispatchers.Default.asExecutor())
                     .build()))
 } catch (e: Exception) {
-    println("GrpcError: Error creating gRPC connection: ${e.stackTrace}\n")
+    println("GrpcError: Error creating gRPC connection: ${e.message}\n")
     Left(Error("Error: ${e.message}"))
 }

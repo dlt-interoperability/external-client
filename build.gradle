@@ -5,6 +5,13 @@ buildscript {
         grpc_version = "1.29.0"
         grpc_kotlin_version = "0.1.4"
     }
+    // This is a workaround to issue
+    // https://github.com/web3j/web3j-gradle-plugin/issues/34
+    dependencies {
+        classpath ("org.web3j:codegen:4.6.3") {
+            force = true
+        }
+    }
 }
 
 plugins {
@@ -12,6 +19,9 @@ plugins {
     id 'application'
     id 'idea'
     id 'com.google.protobuf' version '0.8.12'
+    // The Web3J plugin is not compatible with Gradle 6 because of this issue:
+    // https://github.com/web3j/web3j-gradle-plugin/issues/31
+    id 'org.web3j' version '4.5.11'
 }
 
 configurations.all { configuration ->
@@ -54,6 +64,9 @@ dependencies {
 
     // RSA accumulator library
     implementation "org.starcoin.rsa:rsa-accumulator:0.1"
+
+    // Library for interacting with Ethereum
+    implementation "org.web3j:core:4.6.3"
 }
 
 application {
@@ -67,6 +80,23 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
         jvmTarget = "1.8"
         javaParameters = true
     }
+}
+
+// This is a workaround to the issue where compileSolidity comes before compileKotlin
+// https://github.com/web3j/web3j-gradle-plugin/issues/24
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+    dependsOn 'generateContractWrappers'
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+    dependsOn 'generateTestContractWrappers'
+}
+
+sourceSets {
+    main.kotlin.srcDirs += "${web3j.generatedFilesBaseDir}/main/java"
+    test.kotlin.srcDirs += "${web3j.generatedFilesBaseDir}/test/java"
 }
 
 protobuf {
@@ -91,4 +121,14 @@ protobuf {
             }
         }
     }
+}
+
+web3j {
+    generatedPackageName = 'external.client.contracts.generated'
+    excludedContracts = ['StringUtils']
+}
+
+solidity {
+    executable = "solc"
+    version = "0.7.1"
 }

@@ -1,18 +1,48 @@
 package external.client
 
-import arrow.core.Either
-import arrow.core.Left
-import arrow.core.Right
+import arrow.core.*
 import commitment.CommitmentOuterClass
+import external.client.contracts.generated.LedgerState
+import org.web3j.crypto.Credentials
+import org.web3j.protocol.Web3j
+import org.web3j.protocol.http.HttpService
+import org.web3j.tx.gas.StaticGasProvider
+import java.io.FileInputStream
+import java.math.BigInteger
+import java.util.*
 
-fun getLatestAccumulator(blockHeight: Int): Either<Error, CommitmentOuterClass.Commitment> = try {
-    // TODO: Fetch actual commitment from Ethereum
-    // This is currently creating a dummy commitment
-    Right(CommitmentOuterClass.Commitment.newBuilder()
-            .setAccumulator("229106625344179343892429585266069669503721218095865999800301083878039438783685867064176351695488480907498995117550818657595606793094027192072413425109096666547329218839185710826895343981359386836625266179285875075202593439371515552545515582951468299040843524929468091380272232006710357364667820260831798730944798194360565292706593025864194358750790219046535069328293287530614394694172318593075768056712278596312598912555687435090191197023856126361719832375349046901656846533017448936396684152395163758277484840656145219273498159176197746780747896224016710253183987346398407901831462462178691615244978100754282029800951576243514382644363506805900117338767997997640554524890253529652457400171308515836838032117285569477480344883630286155198395804688059256401640605504354630774974750513867183916687304679145479260841120189749098507352928111894230924757873089008446537533729143739385713070686890514831899039300642068919603284819")
-            .setBlockHeight(blockHeight)
-            .build())
-} catch (e: Exception) {
-    println("Ethereum Error: Error fetching commitment from Ethereum: ${e.stackTrace}\n")
-    Left(Error("Ethereum Error: Error fetching commitment from Ethereum: ${e.message}"))
+class EthereumClient() {
+    // This defaults to http://localhost:8545/
+    // TODO add this to config
+    val web3j = Web3j.build(HttpService())
+    val gasProvider = StaticGasProvider(BigInteger.valueOf(20000000000), BigInteger.valueOf(6721975))
+    val properties = Properties()
+    var credentials: Credentials
+
+    init {
+        FileInputStream("${System.getProperty("user.dir")}/src/main/resources/config.properties")
+                .use { properties.load(it) }
+        // By default his is the private key of the last account created by the ganache-cli deterministic network
+        val privateKey = (properties["ETHEREUM_PRIVATE_KEY"] as String)
+        credentials = Credentials.create(privateKey)
+    }
+
+    fun getLatestAccumulator(
+            blockHeight: Int,
+            ledgerContractAddress: String
+    ): Either<Error, CommitmentOuterClass.Commitment> = try {
+        val lsInstance = LedgerState.load(
+                ledgerContractAddress,
+                web3j,
+                credentials,
+                gasProvider)
+        val (commitment, _, blockHeight) = lsInstance.getCommitment().sendAsync().get()
+        Right(CommitmentOuterClass.Commitment.newBuilder()
+                .setAccumulator(commitment.toString(Charsets.UTF_8))
+                .setBlockHeight(blockHeight.toInt())
+                .build())
+    } catch (e: Exception) {
+        println("Ethereum Error: Error fetching commitment from Ethereum: ${e.stackTrace}\n")
+        Left(Error("Ethereum Error: Error fetching commitment from Ethereum: ${e.message}"))
+    }
 }
