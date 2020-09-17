@@ -6,7 +6,6 @@ import proof.ProofOuterClass.StateProofResponse
 import java.io.Closeable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import proof.ProofOuterClass
 import proof.StateProofServiceGrpcKt
 import java.util.concurrent.TimeUnit
 
