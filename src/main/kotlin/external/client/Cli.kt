@@ -7,15 +7,22 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import proof.ProofOuterClass
+import java.io.FileInputStream
+import java.util.*
 
 class GetProofCommand(): CliktCommand(help = "Makes a request to the Fabric agent for a proof of state." +
         "Requires the state key.") {
     val config by requireObject<Map<String, Any>>()
     val key: String by argument()
     val ledgerContractAddress: String by argument()
+    val orgName: String by argument()
     override fun run() {
         println("Getting latest accumulator from Ethereum.")
-        val ethereumClient = config["ETHEREUM_CLIENT"] as EthereumClient
+
+        val config = Properties()
+        FileInputStream("${System.getProperty("user.dir")}/src/main/resources/${orgName}config.properties")
+                .use { config.load(it) }
+        val ethereumClient = EthereumClient(orgName)
         ethereumClient.getLatestAccumulator(ledgerContractAddress).map { commitment ->
             val request = ProofOuterClass.StateProofRequest.newBuilder()
                     .setCommitment(commitment)

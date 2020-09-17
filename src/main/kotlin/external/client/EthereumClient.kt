@@ -11,19 +11,19 @@ import java.io.FileInputStream
 import java.math.BigInteger
 import java.util.*
 
-class EthereumClient() {
+class EthereumClient(val orgName: String) {
     // This defaults to http://localhost:8545/
     // TODO add this to config
     val web3j = Web3j.build(HttpService())
     val gasProvider = StaticGasProvider(BigInteger.valueOf(20000000000), BigInteger.valueOf(6721975))
-    val properties = Properties()
+    val config = Properties()
     var credentials: Credentials
 
     init {
-        FileInputStream("${System.getProperty("user.dir")}/src/main/resources/config.properties")
-                .use { properties.load(it) }
+        FileInputStream("${System.getProperty("user.dir")}/src/main/resources/${orgName}config.properties")
+                .use { config.load(it) }
         // By default his is the private key of the last account created by the ganache-cli deterministic network
-        val privateKey = (properties["ETHEREUM_PRIVATE_KEY"] as String)
+        val privateKey = (config["ETHEREUM_PRIVATE_KEY"] as String)
         credentials = Credentials.create(privateKey)
     }
 
@@ -41,7 +41,7 @@ class EthereumClient() {
                 .setBlockHeight(blockHeight.toInt())
                 .build())
     } catch (e: Exception) {
-        println("Ethereum Error: Error fetching commitment from Ethereum: ${e.stackTrace}\n")
+        println("Ethereum Error: Error fetching commitment from Ethereum: ${e.message}\n")
         Left(Error("Ethereum Error: Error fetching commitment from Ethereum: ${e.message}"))
     }
 }
