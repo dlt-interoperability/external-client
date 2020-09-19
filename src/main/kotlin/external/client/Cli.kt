@@ -20,7 +20,7 @@ class GetProofCommand(): CliktCommand(help = "Makes a request to the Fabric agen
         println("Getting latest accumulator from Ethereum.")
 
         val config = Properties()
-        FileInputStream("${System.getProperty("user.dir")}/src/main/resources/${orgName}config.properties")
+        this::class.java.getResourceAsStream("/${orgName}config.properties")
                 .use { config.load(it) }
         val ethereumClient = EthereumClient(orgName)
         ethereumClient.getLatestAccumulator(ledgerContractAddress).map { commitment ->

@@ -20,7 +20,7 @@ class EthereumClient(val orgName: String) {
     var credentials: Credentials
 
     init {
-        FileInputStream("${System.getProperty("user.dir")}/src/main/resources/${orgName}config.properties")
+        this::class.java.getResourceAsStream("/${orgName}config.properties")
                 .use { config.load(it) }
         // By default his is the private key of the last account created by the ganache-cli deterministic network
         val privateKey = (config["ETHEREUM_PRIVATE_KEY"] as String)
