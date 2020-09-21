@@ -59,8 +59,8 @@ of membership to the state on request. Clone the repo, update the `build.gradle`
 to point to the local Maven repo, and start the agent with:
 
 ```
-make fabric-client
-make ethereum-client
+make ethereum-client ORG="org1"
+make fabric-client ORG="org1" INIT="true"
 ```
 
 When the Ethereum client starts, make note of the address for the ledger state
@@ -74,12 +74,12 @@ The external client is a command line application. Build the binary with:
 ./gradlew installDist
 ```
 
-The only available command is `get-proof <key> <ledger-contract-address>`. Use
-the ledger contract address noted down from when starting the agent in the
-previous section.
+The only available command is `get-proof <state-key> <ledger-contract-address> <fabric-org-id>`. Use the ledger contract address noted down from when starting
+the agent in the previous section. An example of running the get-proof command
+is:
 
 ```
-./build/install/external-client/bin/external-client get-proof key1 <ledger contract address>
+./build/install/external-client/bin/external-client get-proof key1 0xe78a0f7e598cc8b0bb87894b0f60dd2a88d6a8ab org1
 ```
 
 ## Coding principles

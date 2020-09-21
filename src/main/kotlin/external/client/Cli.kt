@@ -7,7 +7,6 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import proof.ProofOuterClass
-import java.io.FileInputStream
 import java.util.*
 
 class GetProofCommand(): CliktCommand(help = "Makes a request to the Fabric agent for a proof of state." +

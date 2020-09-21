@@ -14,7 +14,8 @@ message Committee {
 message Commitment {
   // String representation of the accumulator BigInteger
   string accumulator = 1;
-  int32 block_height = 2;
+  string rollingHash = 2;
+  int32 block_height = 3;
 }
 
 message Ack {
