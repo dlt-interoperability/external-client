@@ -35,7 +35,7 @@ class EthereumClient(val orgName: String) {
                 web3j,
                 credentials,
                 gasProvider)
-        val (commitment, _, blockHeight) = lsInstance.getCommitment().sendAsync().get()
+        val (commitment, _, blockHeight) = lsInstance.getCommitment().send()
         Right(CommitmentOuterClass.Commitment.newBuilder()
                 .setAccumulator(commitment.toString(Charsets.UTF_8))
                 .setBlockHeight(blockHeight.toInt())

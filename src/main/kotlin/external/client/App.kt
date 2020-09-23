@@ -9,9 +9,7 @@ import com.github.ajalt.clikt.core.subcommands
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
-import java.io.FileInputStream
 import java.lang.Error
-import java.util.*
 
 class App: CliktCommand() {
     val config by findOrSetObject { mutableMapOf<String, Any>() }
