@@ -63,7 +63,7 @@ dependencies {
     implementation "com.github.ajalt:clikt:2.7.1"
 
     // RSA accumulator library
-    implementation "org.starcoin.rsa:rsa-accumulator:0.1"
+    implementation "res.dlt.accumulator:rsa-accumulator:0.1"
 
     // Library for interacting with Ethereum
     implementation "org.web3j:core:4.6.3"
