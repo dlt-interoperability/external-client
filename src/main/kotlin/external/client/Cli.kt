@@ -22,24 +22,32 @@ class GetProofCommand(): CliktCommand(help = "Makes a request to the Fabric agen
         this::class.java.getResourceAsStream("/${orgName}config.properties")
                 .use { config.load(it) }
         val ethereumClient = EthereumClient(orgName)
-        ethereumClient.getLatestAccumulator(ledgerContractAddress).map { commitment ->
-            val request = ProofOuterClass.StateProofRequest.newBuilder()
+	val averageTime = listOf(1,2,3,4,5,6,7,8,9,10).map {
+	    val startTime = System.currentTimeMillis()
+            ethereumClient.getLatestAccumulator(ledgerContractAddress).map { commitment ->
+                val request = ProofOuterClass.StateProofRequest.newBuilder()
                     .setCommitment(commitment)
                     .setKey(key)
                     .build()
 
-            println("Getting the proof of state from Fabric Agent.")
-            val host = (config["GRPC_HOST"] as String?) ?: "localhost"
-            val port = (config["GRPC_PORT"] as String?)?.toInt() ?: 9099
-            createGrpcConnection(host, port).map { grpcClient ->
-                runBlocking {
-                    val proofResponse = async { grpcClient.requestStateProof(request) }.await()
-                    grpcClient.close()
-                    proofResponse
+                println("Getting the proof of state from Fabric Agent.")
+                val host = (config["GRPC_HOST"] as String?) ?: "localhost"
+                val port = (config["GRPC_PORT"] as String?)?.toInt() ?: 9099
+                createGrpcConnection(host, port).map { grpcClient ->
+                    runBlocking {
+                        val proofResponse = async { grpcClient.requestStateProof(request) }.await()
+                        grpcClient.close()
+                        proofResponse
+                    }
+                }.flatMap { proofResponse ->
+                    verifyProofResponse(proofResponse, commitment)
                 }
-            }.flatMap { proofResponse ->
-                verifyProofResponse(proofResponse, commitment)
             }
-        }
+	    val queryTime = System.currentTimeMillis() - startTime
+
+	    println("Query $it took $queryTime ms")
+	    queryTime
+	}.average()
+	println("Average query time over 10 queries was $averageTime ms")
     }
 }
