@@ -4,9 +4,10 @@ import arrow.core.Either
 import arrow.core.Left
 import arrow.core.Right
 import commitment.CommitmentOuterClass
-import org.starcoin.rsa.RSAAccumulator
-import org.starcoin.rsa.stringToHashBigInteger
 import proof.ProofOuterClass
+import res.dlt.accumulator.RSAAccumulator
+import res.dlt.accumulator.hashStringToBigInt
+import res.dlt.accumulator.verifyProof
 import java.math.BigInteger
 
 fun verifyProofResponse(
@@ -19,11 +20,10 @@ fun verifyProofResponse(
         // that was retrieved from the bulletin board
         if (proofResponse.proof.a.contains(ethCommitment.accumulator)) {
             // Create the hash key from the state returned from the Fabric agent
-            val key = stringToHashBigInteger(proofResponse.proof.state)
-            val isValid = RSAAccumulator.verifyMembership(
+            val key = hashStringToBigInt(proofResponse.proof.state)
+            val isValid = verifyProof(
                     a = BigInteger(proofResponse.proof.a),
-                    x = key,
-                    nonce = BigInteger(proofResponse.proof.nonce),
+                    key = key,
                     proof = BigInteger(proofResponse.proof.proof),
                     n = BigInteger(proofResponse.proof.n)
             )
