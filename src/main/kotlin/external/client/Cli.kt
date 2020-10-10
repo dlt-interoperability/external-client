@@ -22,7 +22,7 @@ class GetProofCommand(): CliktCommand(help = "Makes a request to the Fabric agen
         this::class.java.getResourceAsStream("/${orgName}config.properties")
                 .use { config.load(it) }
         val ethereumClient = EthereumClient(orgName)
-	val averageTime = listOf(1,2,3,4,5,6,7,8,9,10).map {
+	val queryTimes = listOf(1,2,3,4,5,6,7,8,9,10).map {
 	    val startTime = System.currentTimeMillis()
             ethereumClient.getLatestAccumulator(ledgerContractAddress).map { commitment ->
                 val request = ProofOuterClass.StateProofRequest.newBuilder()
@@ -47,7 +47,8 @@ class GetProofCommand(): CliktCommand(help = "Makes a request to the Fabric agen
 
 	    println("Query $it took $queryTime ms")
 	    queryTime
-	}.average()
-	println("Average query time over 10 queries was $averageTime ms")
+	}
+	println("Query times are: $queryTimes")
+	println("Average query time over 10 queries was ${queryTimes.average()} ms")
     }
 }

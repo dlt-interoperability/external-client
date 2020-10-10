@@ -1,0 +1,28 @@
+Time taken to query the Ethereum network for the commitment, 
+query Fabric agent for proof, and verify the proof, in milliseconds.
+
+Round 1 (1-120 blocks)
+1: 880 
+2: 124
+3: 118
+4: 118
+5: 101
+6: 103
+7: 96
+8: 100
+9: 94
+10: 102
+Average: 183.6 
+
+Round 2 (121-240 blocks)
+1: 900
+2: 102
+3: 122
+4: 98
+5: 98
+6: 96
+7: 114
+8: 100
+9: 99
+10: 101
+Average: 183.0 
