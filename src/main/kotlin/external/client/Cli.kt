@@ -7,6 +7,8 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import proof.ProofOuterClass
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 class GetProofCommand(): CliktCommand(help = "Makes a request to the Fabric agent for a proof of state." +
@@ -47,6 +49,11 @@ class GetProofCommand(): CliktCommand(help = "Makes a request to the Fabric agen
 	        println("Query $it took $queryTime ms")
 	        queryTime
 	    }
+        FileOutputStream(File(config["RESULTS_FILE"] as String), true).bufferedWriter().use { writer ->
+            writer.append("\nNext set of blocks")
+            writer.append("\nQuery times are: $queryTimes")
+            writer.append("\nAverage query time over 10 queries was ${queryTimes.average()} ms\n")
+        }
 	    println("Query times are: $queryTimes")
 	    println("Average query time over 10 queries was ${queryTimes.average()} ms")
     }
