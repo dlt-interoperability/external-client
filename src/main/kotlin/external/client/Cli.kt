@@ -23,10 +23,12 @@ class GetProofCommand(): CliktCommand(help = "Makes a request to the Fabric agen
         val config = Properties()
         this::class.java.getResourceAsStream("/${orgName}config.properties")
                 .use { config.load(it) }
+        var blockNumber = 0
         val ethereumClient = EthereumClient(orgName)
 	    val queryTimes = listOf(1,2,3,4,5,6,7,8,9,10).map {
             val startTime = System.currentTimeMillis()
             ethereumClient.getLatestAccumulator(ledgerContractAddress).map { commitment ->
+                blockNumber = commitment.blockHeight
                 val request = ProofOuterClass.StateProofRequest.newBuilder()
                     .setCommitment(commitment)
                     .setKey(key)
@@ -49,11 +51,10 @@ class GetProofCommand(): CliktCommand(help = "Makes a request to the Fabric agen
 	        println("Query $it took $queryTime ms")
 	        queryTime
 	    }
-        FileOutputStream(File(config["RESULTS_FILE"] as String), true).bufferedWriter().use { writer ->
-            writer.append("\nNext set of blocks")
-            writer.append("\nQuery times are: $queryTimes")
-            writer.append("\nAverage query time over 10 queries was ${queryTimes.average()} ms\n")
-        }
+        val resultsFile = File(config["RESULTS_FILE"] as String)
+        resultsFile.appendText("\nBlocks up to $blockNumber")
+        resultsFile.appendText("\nQuery times are: $queryTimes")
+        resultsFile.appendText("\nAverage query time over 10 queries was ${queryTimes.average()} ms\n")
 	    println("Query times are: $queryTimes")
 	    println("Average query time over 10 queries was ${queryTimes.average()} ms")
     }
